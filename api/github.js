@@ -1,25 +1,32 @@
-const axios = require('axios').default;
+const { Octokit } = require('@octokit/rest');
 
 class GitHub {
   constructor() {
     this.templateOwner = process.env.STOREFRONT_CI_GITHUB_TEMPLATE_OWNER;
     this.templateRepo = process.env.STOREFRONT_CI_GITHUB_TEMPLATE_REPO;
-    this.request = axios.create({
-      baseURL: 'https://api.github.com',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/vnd.github.baptiste-preview+json',
-        'Authorization': `Bearer ${process.env.STOREFRONT_CI_GITHUB_TOKEN}`
-      }
-    })
   }
 
   async generate(data) {
     try {
-      return await this.request
-        .post(`/repos/${this.templateOwner}/${this.templateRepo}/generate`, data);
+      data.owner = data.owner ? data.owner : process.env.STOREFRONT_CI_GITHUB_DEFAULT_OWNER
+      if (!process.env.STOREFRONT_CI_GITHUB_TOKEN) {
+        throw { error: 'GITHUB_TOKEN is required!' }
+      }
+
+      const octokit = new Octokit({
+        auth: process.env.STOREFRONT_CI_GITHUB_TOKEN
+      });
+
+      return await octokit.repos.createUsingTemplate({
+        template_owner: this.templateOwner,
+        template_repo: this.templateRepo,
+        ...data
+      })
     } catch (error) {
-      throw await error.response.data
+      if (error.errors) {
+        throw await error.errors
+      }
+      throw await error
     }
   }
 }

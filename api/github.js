@@ -17,7 +17,7 @@ class GitHub {
     });
 
     return this.generate(octokit, payload)
-      .then(data => this.getContent(octokit, payload))
+      .then(() => this.getContent(octokit, payload))
       .then(({ data }) => this.updateSettings(octokit, payload, data))
       .catch(error => {
         if (error.errors) {
@@ -36,7 +36,7 @@ class GitHub {
       template_repo: this.templateRepo,
       owner: payload.owner ? payload.owner : process.env.STOREFRONT_CI_GITHUB_DEFAULT_OWNER,
       name: payload.name,
-      description: payload.description,
+      description: payload.description || '',
       private: false,
     })
   }
@@ -54,11 +54,11 @@ class GitHub {
   }
 
   updateSettings(octokit, payload, content) {
-    const defaultSettings = { ...DEFAULT_SETTINGS, ...payload };
+    const defaultSettings = { ...DEFAULT_SETTINGS, ...payload.settings || {} };
     return octokit.repos.createOrUpdateFile({
       owner: process.env.STOREFRONT_CI_GITHUB_DEFAULT_OWNER,
       repo: payload.name,
-      message: 'updated content/settings.json',
+      message: 'Initial commit',
       path: 'content/settings.json',
       content: Buffer.from(JSON.stringify(defaultSettings, null, 2)).toString('base64'),
       sha: content.sha

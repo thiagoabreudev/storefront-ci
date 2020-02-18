@@ -49,7 +49,7 @@ class GitHub {
           repo: payload.name,
           path: 'content/settings.json'
         }).then(res => resolve(res)).catch(err => reject(err))
-      }, 1000);
+      }, 2000);
     })
   }
 
@@ -58,7 +58,7 @@ class GitHub {
     return octokit.repos.createOrUpdateFile({
       owner: process.env.STOREFRONT_CI_GITHUB_DEFAULT_OWNER,
       repo: payload.name,
-      message: 'Initial commit',
+      message: 'Setup store',
       path: 'content/settings.json',
       content: Buffer.from(JSON.stringify(defaultSettings, null, 2)).toString('base64'),
       sha: content.sha

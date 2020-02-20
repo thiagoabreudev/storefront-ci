@@ -18,7 +18,13 @@ class GitHub {
         .then(() => this.getContent(octokit, payload))
         .then(({ data }) => this.updateSettings(octokit, payload, data))
         .then(data => resolve(data))
-        .catch(error => reject(error))
+        .catch(error => reject({
+          step: 'github',
+          status: error.status,
+          error: error.statusText,
+          details: error.errors,
+          documentation_url: error.documentation_url
+        }))
     })
   }
 

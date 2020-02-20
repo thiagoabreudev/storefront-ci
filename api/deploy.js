@@ -1,18 +1,15 @@
 const github = require('./Github');
+const gotrue = require('./Gotrue');
 
 const deploy = (req, res, next) => {
   github.deploy(req.body)
-    .then(result => res.json({
-      github: 'ok'
+    .then(() => gotrue.deploy(req.body))
+    .then(() => res.json({
+      github: 'ok',
+      gotrue: 'ok'
     }))
-    .catch(({ status, documentation_url, errors}) => {
-      res.status(422).json({
-        status: 'failed',
-        github_status: status,
-        error: 'Error to make deploy in Github!',
-        details: errors,
-        documentation_url,
-      })
+    .catch(error => {
+      res.status(422).json(error)
     })
 }
 

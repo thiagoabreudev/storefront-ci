@@ -5,7 +5,6 @@ axios.defaults.baseURL = process.env.STOREFRONT_CI_GOTRUE_URL;
 
 class GoTrue {
   constructor() {
-    this.url = process.env.STOREFRONT_CI_GOTRUE_URL
     this.username = process.env.STOREFRONT_CI_GOTRUE_USERNAME
     this.password = process.env.STOREFRONT_CI_GOTRUE_PASSWORD
   }

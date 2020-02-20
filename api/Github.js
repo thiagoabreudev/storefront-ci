@@ -9,22 +9,17 @@ class GitHub {
   }
 
   async deploy(payload) {
-    if (!process.env.STOREFRONT_CI_GITHUB_TOKEN) {
-      throw { error: 'GITHUB_TOKEN is required!' }
-    }
-    const octokit = new Octokit({
-      auth: process.env.STOREFRONT_CI_GITHUB_TOKEN
-    });
+    return new Promise((resolve, reject) => {
+      const octokit = new Octokit({
+        auth: process.env.STOREFRONT_CI_GITHUB_TOKEN
+      });
 
-    return this.generate(octokit, payload)
-      .then(() => this.getContent(octokit, payload))
-      .then(({ data }) => this.updateSettings(octokit, payload, data))
-      .catch(error => {
-        if (error.errors) {
-          throw error.errors
-        }
-        throw error
-      })
+      return this.generate(octokit, payload)
+        .then(() => this.getContent(octokit, payload))
+        .then(({ data }) => this.updateSettings(octokit, payload, data))
+        .then(data => resolve(data))
+        .catch(error => reject(error))
+    })
   }
 
   generate(octokit, payload) {
@@ -49,7 +44,7 @@ class GitHub {
           repo: payload.name,
           path: 'content/settings.json'
         }).then(res => resolve(res)).catch(err => reject(err))
-      }, 2000);
+      }, 3000);
     })
   }
 

@@ -8,7 +8,7 @@ class GitHub {
     this.templateRepo = process.env.STOREFRONT_CI_GITHUB_TEMPLATE_REPO;
   }
 
-  async deploy(payload) {
+  deploy(payload) {
     return new Promise((resolve, reject) => {
       const octokit = new Octokit({
         auth: process.env.STOREFRONT_CI_GITHUB_TOKEN

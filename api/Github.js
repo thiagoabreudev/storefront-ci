@@ -17,7 +17,7 @@ class GitHub {
       return this.generate(octokit, payload)
         .then(() => this.getContent(octokit, payload))
         .then(({ data }) => this.updateSettings(octokit, payload, data))
-        .then(data => resolve(data))
+        .then(({ data }) => resolve(data))
         .catch(error => reject({
           step: 'github',
           status: error.status,

@@ -1,7 +1,8 @@
-const axios = require('axios');
 const qs = require('qs');
-axios.defaults.baseURL = process.env.STOREFRONT_CI_GOTRUE_URL;
-
+const axios = require('axios').create({
+  baseURL: process.env.STOREFRONT_CI_GOTRUE_URL,
+  timeout: 1000,
+});
 
 class GoTrue {
   constructor() {
@@ -14,7 +15,7 @@ class GoTrue {
       this.login()
         .then(() => this.createUser(payload))
         .then(({ data }) => this.updateRule(payload, data))
-        .then(data => resolve(data))
+        .then(({ data }) => resolve(data))
         .catch(({ response }) => reject({
           step: 'gotrue',
           status: response.status,
@@ -58,17 +59,19 @@ class GoTrue {
   }
 
   updateRule(payload, gotrueUser) {
-    const storeId = payload.gotrue.store_id ? payload.gotrue.store_id : payload.settings.store_id;
-    const data = {
-      'app_metadata': {
-        'roles': [
-          `s${storeId}`
-        ]
+    return new Promise((resolve, reject) => {
+      const storeId = payload.gotrue.store_id ? payload.gotrue.store_id : payload.settings.store_id;
+      const data = {
+        'app_metadata': {
+          'roles': [
+            `s${storeId}`
+          ]
+        }
       }
-    }
-    axios.put(`admin/users/${gotrueUser.id}`, data)
-      .then(result => result)
-      .catch(error => error)
+      axios.put(`admin/users/${gotrueUser.id}`, data)
+        .then(result => resolve(result))
+        .catch(error => reject(error))
+    })
   }
 }
 

@@ -29,9 +29,6 @@ class GitHub {
   }
 
   generate(octokit, payload) {
-    if (!payload.name) {
-      throw { error: 'name is required!' }
-    };
     return octokit.repos.createUsingTemplate({
       template_owner: this.templateOwner,
       template_repo: this.templateRepo,

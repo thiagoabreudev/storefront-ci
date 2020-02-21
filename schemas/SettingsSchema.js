@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-SettingsSchema = Joi.object().keys({
+const SettingsSchema = Joi.object().keys({
 
 });
 

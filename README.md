@@ -6,7 +6,7 @@ Automated tasks for default Storefront setup and first deploy
 
 storefront-ci exposes the endpoint (settings is bypass to `/content/settings.json`):
 
-* **GET /deploy**
+* **POST /deploy**
 
   Body:
 

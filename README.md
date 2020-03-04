@@ -4,7 +4,7 @@ Automated tasks for default Storefront setup and first deploy
 
 ## Endpoints
 
-storefront-ci exposes the endpoint (settings is bypass to display a store):
+storefront-ci exposes the endpoint (settings is bypass to `/content/settings.json`):
 
 * **GET /deploy**
 

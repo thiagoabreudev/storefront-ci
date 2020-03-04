@@ -1,11 +1,11 @@
-const _ = require('lodash');
-const Joi = require('joi');
-const Schemas = require('../schemas');
+const _ = require('lodash')
+const Joi = require('joi')
+const Schemas = require('../schemas')
 
 
 module.exports = (useJoiError = false) => {
-  const _useJoiError = _.isBoolean(useJoiError) && useJoiError;
-  const _supportedMethods = ['post'];
+  const _useJoiError = _.isBoolean(useJoiError) && useJoiError
+  const _supportedMethods = ['post']
 
   const _validationOptions = {
     abortEarly: false,
@@ -14,11 +14,11 @@ module.exports = (useJoiError = false) => {
   }
 
   return (req, res, next) => {
-    const route = req.route.path;
-    const method = req.method.toLowerCase();
+    const route = req.route.path
+    const method = req.method.toLowerCase()
 
     if (_.includes(_supportedMethods, method) && _.has(Schemas, route)) {
-      const _schema = _.get(Schemas, route);
+      const _schema = _.get(Schemas, route)
       if (_schema) {
         return Joi.validate(req.body, _schema, _validationOptions, (err, data) => {
           if (err) {
@@ -39,16 +39,16 @@ module.exports = (useJoiError = false) => {
               error: 'Invalid request data!'
             }
 
-            res.status(422).json(_useJoiError ? JoiError : customError);
+            res.status(422).json(_useJoiError ? JoiError : customError)
 
           } else {
-            req.body = data;
-            next();
+            req.body = data
+            next()
           }
         })
       }
     }
 
-    next();
+    next()
   }
 }

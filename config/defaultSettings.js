@@ -21,4 +21,4 @@ const DEFAULT_SETTINGS = {
   "country_code": "BR"
 }
 
-module.exports = DEFAULT_SETTINGS;
+module.exports = DEFAULT_SETTINGS

@@ -1,11 +1,11 @@
-const uuid = require('uuid/v4');
+const uuid = require('uuid/v4')
 
 const axios = require('axios').create({
   baseURL: process.env.STOREFRONT_CI_GITGATEWAY_URL,
   headers: {
     'Authorization': `Bearer ${process.env.STOREFRONT_CI_OPERATOR_TOKEN}`
   }
-});
+})
 
 
 class GitGateway {
@@ -25,8 +25,8 @@ class GitGateway {
 
   createInstance(payload) {
     return new Promise((resolve, reject) => {
-      const storeId = payload.gotrue.store_id ? payload.gotrue.store_id : payload.settings.store_id;
-      const owner = payload.owner ? payload.owner : process.env.STOREFRONT_CI_GITHUB_DEFAULT_OWNER;
+      const storeId = payload.gotrue.store_id ? payload.gotrue.store_id : payload.settings.store_id
+      const owner = payload.owner ? payload.owner : process.env.STOREFRONT_CI_GITHUB_DEFAULT_OWNER
       const headers = {
         'Authorization': `Bearer ${process.env.STOREFRONT_CI_OPERATOR_TOKEN}`
       }
@@ -50,4 +50,4 @@ class GitGateway {
   }
 }
 
-module.exports = new GitGateway();
+module.exports = new GitGateway()

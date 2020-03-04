@@ -1,6 +1,6 @@
-const github = require('./Github');
-const gotrue = require('./Gotrue');
-const gitgateway = require('./GitGateway');
+const github = require('./Github')
+const gotrue = require('./Gotrue')
+const gitgateway = require('./GitGateway')
 const netlify = require('./Nelify')
 
 const deploy = (req, res) => {

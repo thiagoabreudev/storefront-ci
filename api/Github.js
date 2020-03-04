@@ -1,18 +1,18 @@
-const { Octokit } = require('@octokit/rest');
-const DEFAULT_SETTINGS = require('../config/defaultSettings');
+const { Octokit } = require('@octokit/rest')
+const DEFAULT_SETTINGS = require('../config/defaultSettings')
 
 
 class GitHub {
   constructor() {
-    this.templateOwner = process.env.STOREFRONT_CI_GITHUB_TEMPLATE_OWNER;
-    this.templateRepo = process.env.STOREFRONT_CI_GITHUB_TEMPLATE_REPO;
+    this.templateOwner = process.env.STOREFRONT_CI_GITHUB_TEMPLATE_OWNER
+    this.templateRepo = process.env.STOREFRONT_CI_GITHUB_TEMPLATE_REPO
   }
 
   deploy(payload) {
     return new Promise((resolve, reject) => {
       const octokit = new Octokit({
         auth: process.env.STOREFRONT_CI_GITHUB_TOKEN
-      });
+      })
 
       return this.generate(octokit, payload)
         .then(() => this.getContent(octokit, payload))
@@ -47,12 +47,12 @@ class GitHub {
           repo: payload.name,
           path: 'content/settings.json'
         }).then(res => resolve(res)).catch(err => reject(err))
-      }, 3000);
+      }, 3000)
     })
   }
 
   updateSettings(octokit, payload, content) {
-    const defaultSettings = { ...DEFAULT_SETTINGS, ...payload.settings || {} };
+    const defaultSettings = { ...DEFAULT_SETTINGS, ...payload.settings || {} }
     return octokit.repos.createOrUpdateFile({
       owner: process.env.STOREFRONT_CI_GITHUB_DEFAULT_OWNER,
       repo: payload.name,
@@ -64,4 +64,4 @@ class GitHub {
   }
 }
 
-module.exports = new GitHub();
+module.exports = new GitHub()

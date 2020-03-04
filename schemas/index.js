@@ -1,6 +1,6 @@
-const DeploySchema = require('./DeploySchema');
+const DeploySchema = require('./DeploySchema')
 
 
 module.exports = {
   '/deploy': DeploySchema
-};
+}

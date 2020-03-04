@@ -3,7 +3,7 @@ const axios = require('axios').create({
   headers: {
     'Authorization': `Bearer ${process.env.STOREFRONT_CI_NETLIFY_TOKEN}`
   }
-});
+})
 
 class Netlify {
   deploy(payload) {
@@ -31,7 +31,7 @@ class Netlify {
 
   updateSiteWithRepo(payload, siteData) {
     return new Promise((resolve, reject) => {
-      const owner = payload.owner ? payload.owner : process.env.STOREFRONT_CI_GITHUB_DEFAULT_OWNER;
+      const owner = payload.owner ? payload.owner : process.env.STOREFRONT_CI_GITHUB_DEFAULT_OWNER
       const data = {
         repo: {
           provider: process.env.STOREFRONT_CI_NETLIFY_PROVIDER || 'github',
@@ -49,4 +49,4 @@ class Netlify {
   }
 }
 
-module.exports = new Netlify();
+module.exports = new Netlify()

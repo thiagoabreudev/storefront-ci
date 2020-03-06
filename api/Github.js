@@ -17,6 +17,7 @@ class GitHub {
       return this.generate(octokit, payload)
         .then(() => this.getContent(octokit, payload))
         .then(({ data }) => this.updateSettings(octokit, payload, data))
+        .then(() => this.createConfig(octokit, payload))
         .then(({ data }) => resolve(data))
         .catch(error => reject({
           step: 'github',
@@ -62,6 +63,26 @@ class GitHub {
       sha: content.sha
     })
   }
+
+  createConfig(octokit, payload) {
+    const config = {
+      backend: {
+        name: "git-gateway",
+        branch: "master",
+        identity_url: `https://gotrue.ecomplus.biz/${payload.gotrue.store_id}/.netlify/identity`,
+        gateway_url: `https://gitgateway.ecomplus.biz/${payload.gotrue.store_id}/.netlify/git`
+      }
+    }
+
+    return octokit.repos.createOrUpdateFile({
+      owner: process.env.STOREFRONT_CI_GITHUB_DEFAULT_OWNER,
+      repo: payload.name,
+      message: 'Setup store',
+      path: 'content/.config.json',
+      content: Buffer.from(JSON.stringify(config, null, 2)).toString('base64'),
+    })
+  }
+
 }
 
 module.exports = new GitHub()

@@ -78,7 +78,7 @@ class GitHub {
       owner: process.env.STOREFRONT_CI_GITHUB_DEFAULT_OWNER,
       repo: payload.name,
       message: 'Setup store',
-      path: 'content/.config.json',
+      path: 'template/public/admin/config.json',
       content: Buffer.from(JSON.stringify(config, null, 2)).toString('base64'),
     })
   }

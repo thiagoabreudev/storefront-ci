@@ -55,7 +55,7 @@ class GitHub {
         octokit.repos.createOrUpdateFile({
           owner: process.env.STOREFRONT_CI_GITHUB_DEFAULT_OWNER,
           repo: payload.name,
-          message: 'chore cms setup custom backend config [skip ci]',
+          message: 'chore(cms): setup custom backend config [skip ci]',
           path: 'template/public/admin/config.json',
           content: Buffer.from(JSON.stringify(config, null, 2)).toString('base64'),
         }).then(res => resolve(res)).catch(err => reject(err))

@@ -1,33 +1,31 @@
-const logger = require('../config/winston');
+const logger = require('../config/winston')
 const uuid = require('uuid/v4')
 const axios = require('axios').create({
   baseURL: process.env.STOREFRONT_CI_GITGATEWAY_URL,
   headers: {
-    'Authorization': `Bearer ${process.env.STOREFRONT_CI_OPERATOR_TOKEN}`
+    Authorization: `Bearer ${process.env.STOREFRONT_CI_OPERATOR_TOKEN}`
   }
 })
 
-
 class GitGateway {
-
-  deploy(payload) {
+  deploy (payload) {
     return new Promise((resolve, reject) => {
       this.createInstance(payload)
         .then(({ data }) => resolve(data))
         .catch(({ response }) => {
           const error = { step: 'git-gateway', error: response.data }
-          logger.error(`${ JSON.stringify(error) }`)
+          logger.error(`${JSON.stringify(error)}`)
           return reject(error)
         })
     })
   }
 
-  createInstance(payload) {
+  createInstance (payload) {
     return new Promise((resolve, reject) => {
       const storeId = payload.gotrue.store_id ? payload.gotrue.store_id : payload.settings.store_id
       const owner = payload.owner ? payload.owner : process.env.STOREFRONT_CI_GITHUB_DEFAULT_OWNER
       const headers = {
-        'Authorization': `Bearer ${process.env.STOREFRONT_CI_OPERATOR_TOKEN}`
+        Authorization: `Bearer ${process.env.STOREFRONT_CI_OPERATOR_TOKEN}`
       }
       const data = {
         uuid: uuid(),

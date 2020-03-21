@@ -1,5 +1,5 @@
-winston = require('winston');
-path = require('path')
+const winston = require('winston')
+const path = require('path')
 
 const logger = winston.createLogger({
   level: process.env.STOREFRONT_CI_LOG_LEVEL || 'info',
@@ -14,7 +14,7 @@ const logger = winston.createLogger({
 
 logger.stream = {
   write: function (message, encoding) {
-    logger.info(message);
+    logger.info(message)
   }
 }
 

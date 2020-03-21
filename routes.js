@@ -5,13 +5,12 @@ const logger = require('./config/winston')
 
 const handler = (func) => (req, res) => {
   try {
-      func(req, res);
-  } catch(e){
-      logger.info(`Error: ${e}`);
-      res.send('Oh no, something did not go well!');
+    func(req, res)
+  } catch (e) {
+    logger.info(`Error: ${e}`)
+    res.send('Oh no, something did not go well!')
   }
-};
-
+}
 
 const SchemaValidator = require('./middlewares/SchemaValidator')
 

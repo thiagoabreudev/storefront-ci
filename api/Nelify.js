@@ -20,12 +20,20 @@ class Netlify {
     })
   }
 
-  createSite (payload) {
+  createSite (payload, retry = false) {
     return new Promise((resolve, reject) => {
-      const data = { name: payload.name }
+      const name = retry ? `${payload.name}-${Math.random() * (9999 - 1000) + 1000}` : payload.name
+      const data = { name }
       axios.post('/sites', data)
         .then(result => resolve(result))
-        .catch(error => reject(error))
+        .catch(error => {
+          if (error.response && error.response.status === 422 && !retry) {
+            return this.createSite(payload, true)
+              .then(result => resolve(result))
+              .catch(error => reject(error))
+          }
+          return reject(error)
+        })
     })
   }
 

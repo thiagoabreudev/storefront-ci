@@ -1,3 +1,5 @@
+const logger = require('../config/winston');
+
 const qs = require('qs')
 const axios = require('axios').create({
   baseURL: process.env.STOREFRONT_CI_GOTRUE_URL,
@@ -16,12 +18,11 @@ class GoTrue {
         .then(() => this.createUser(payload))
         .then(({ data }) => this.updateRule(payload, data))
         .then(({ data }) => resolve(data))
-        .catch(({ response }) => reject({
-          step: 'gotrue',
-          status: response? response.status : '',
-          error: response? response.statusText: '',
-          details: response? response.data.msg: ''
-        }))
+        .catch(({ response }) => {
+          const error = { step: 'gotrue', status: response.status, error: response.data}
+          logger.error(`${ JSON.stringify(error) }`)
+          return reject(error)
+        })
     })
   }
 

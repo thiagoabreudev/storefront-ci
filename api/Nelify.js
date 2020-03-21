@@ -1,3 +1,4 @@
+const logger = require('../config/winston');
 const axios = require('axios').create({
   baseURL: process.env.STOREFRONT_CI_NETLIFY_URL,
   headers: {
@@ -11,12 +12,11 @@ class Netlify {
       this.createSite(payload)
       .then(({ data }) => this.updateSiteWithRepo(payload, data))
       .then(({data}) => resolve(data))
-      .catch(({response}) => reject({
-        setep: 'netlify',
-        status: response.status,
-        error: response.statusText,
-        details: response.data.errors
-      }))
+      .catch(({ response }) => {
+        const error = { step: 'netlify', status: response.status, error: response.data}
+        logger.error(`${ JSON.stringify(error) }`)
+        return reject(error)
+      })
     })
   }
 

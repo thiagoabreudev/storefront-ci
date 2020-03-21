@@ -1,4 +1,5 @@
 const { Octokit } = require('@octokit/rest')
+const logger = require('../config/winston');
 const DEFAULT_SETTINGS = require('../config/defaultSettings')
 
 
@@ -19,13 +20,17 @@ class GitHub {
         .then(() => this.getSettingsContent(octokit, payload))
         .then(({ data }) => this.updateSettings(octokit, payload, data))
         .then(({ data }) => resolve(data))
-        .catch(error => reject({
-          step: 'github',
-          status: error.status,
-          error: error.statusText,
-          details: error.errors,
-          documentation_url: error.documentation_url
-        }))
+        .catch(error => {
+          const err = {
+            step: 'github',
+            status: error.status,
+            error: error.statusText,
+            details: error.errors,
+            documentation_url: error.documentation_url
+          }
+          logger.error(`${JSON.stringify(err)}`)
+          return reject(err)
+        })
     })
   }
 

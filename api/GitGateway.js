@@ -1,5 +1,5 @@
+const logger = require('../config/winston');
 const uuid = require('uuid/v4')
-
 const axios = require('axios').create({
   baseURL: process.env.STOREFRONT_CI_GITGATEWAY_URL,
   headers: {
@@ -14,12 +14,11 @@ class GitGateway {
     return new Promise((resolve, reject) => {
       this.createInstance(payload)
         .then(({ data }) => resolve(data))
-        .catch(error => reject({
-          step: 'gitgateway',
-          status: error.status,
-          error: error.statusText,
-          details: error.data.msg
-        }))
+        .catch(({ response }) => {
+          const error = { step: 'git-gateway', error: response.data }
+          logger.error(`${ JSON.stringify(error) }`)
+          return reject(error)
+        })
     })
   }
 

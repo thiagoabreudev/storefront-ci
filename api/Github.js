@@ -15,11 +15,13 @@ class GitHub {
       })
 
       return this.generate(octokit, payload)
-        .then(() => this.createCMSConfig(octokit, payload))
-        .then(() => this.getSettingsContent(octokit, payload))
+        .then(() => this.getFileContent(octokit, payload, 'template/public/admin/config.json', 10000))
+        .then(({ data }) => this.createCMSConfig(octokit, payload, data))
+        .then(() => this.getFileContent(octokit, payload, 'content/settings.json', 3000))
         .then(({ data }) => this.updateSettings(octokit, payload, data))
         .then(({ data }) => resolve(data))
         .catch(error => {
+          console.log(error)
           const err = {
             step: 'github',
             status: error.status,
@@ -44,7 +46,7 @@ class GitHub {
     })
   }
 
-  createCMSConfig (octokit, payload) {
+  createCMSConfig (octokit, payload, content) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         const config = {
@@ -61,21 +63,22 @@ class GitHub {
           repo: payload.name,
           message: 'chore(cms): setup custom backend config [skip ci]',
           path: 'template/public/admin/config.json',
-          content: Buffer.from(JSON.stringify(config, null, 2)).toString('base64')
+          content: Buffer.from(JSON.stringify(config, null, 2)).toString('base64'),
+          sha: content.sha
         }).then(res => resolve(res)).catch(err => reject(err))
-      }, 10000)
+      }, 30000)
     })
   }
 
-  getSettingsContent (octokit, payload) {
+  getFileContent (octokit, payload, path, timeout) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         octokit.repos.getContents({
           owner: process.env.STOREFRONT_CI_GITHUB_DEFAULT_OWNER,
           repo: payload.name,
-          path: 'content/settings.json'
+          path,
         }).then(res => resolve(res)).catch(err => reject(err))
-      }, 3000)
+      }, timeout)
     })
   }
 

@@ -20,25 +20,59 @@ class GitHub {
         .then(({ data }) => this.updateSettings(octokit, payload, data))
         .then(({ data }) => resolve(data))
         .catch(error => {
-          console.log(error)
-          const err = {
-            step: 'github',
-            status: error.status,
-            error: error.statusText,
-            details: error.errors,
-            documentation_url: error.documentation_url
+          if (error.status) {
+            const err = {
+              step: 'github',
+              status: error.status,
+              error: error.statusText,
+              details: error.errors,
+              documentation_url: error.documentation_url
+            }
+            logger.error(`${JSON.stringify(err)}`)
+            return reject(err)
           }
-          logger.error(`${JSON.stringify(err)}`)
+          logger.error(`${JSON.stringify(error)}`)
+          return reject(error)
+        })
+    })
+  }
+
+  getOwner(payload) {
+    return payload.owner ? payload.owner : process.env.STOREFRONT_CI_GITHUB_DEFAULT_OWNER
+  }
+
+  getRepoName(payload) {
+    return new Promise((resolve, reject) => {
+      const octokit = new Octokit({
+        auth: process.env.STOREFRONT_CI_GITHUB_TOKEN
+      })
+      const owner = this.getOwner(payload)
+      const { name } = payload
+      octokit.repos.get({
+        owner,
+        repo: name
+      })
+        .then(({ status }) => {
+          if (status === 200) {
+            return resolve(`${name}-${Math.random() * (9999 - 1000) + 1000}`)
+          }
+          return resolve(name)
+        })
+        .catch(err => {
+          if (err.status && err.status === 404) {
+            return resolve(name)
+          }
           return reject(err)
         })
     })
+
   }
 
   generate(octokit, payload) {
     return octokit.repos.createUsingTemplate({
       template_owner: this.templateOwner,
       template_repo: this.templateRepo,
-      owner: payload.owner ? payload.owner : process.env.STOREFRONT_CI_GITHUB_DEFAULT_OWNER,
+      owner: this.getOwner(payload),
       name: payload.name,
       description: payload.description || '',
       private: false
@@ -80,7 +114,7 @@ class GitHub {
     })
   }
 
-  updateSettings (octokit, payload, content) {
+  updateSettings(octokit, payload, content) {
     const defaultSettings = { ...DEFAULT_SETTINGS, ...payload.settings || {} }
     return octokit.repos.createOrUpdateFile({
       owner: process.env.STOREFRONT_CI_GITHUB_DEFAULT_OWNER,

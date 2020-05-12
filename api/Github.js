@@ -3,20 +3,19 @@ const logger = require('../config/winston')
 const DEFAULT_SETTINGS = require('../config/defaultSettings')
 
 class GitHub {
-  constructor () {
+  constructor() {
     this.templateOwner = process.env.STOREFRONT_CI_GITHUB_TEMPLATE_OWNER
     this.templateRepo = process.env.STOREFRONT_CI_GITHUB_TEMPLATE_REPO
   }
 
-  deploy (payload) {
+  deploy(payload) {
     return new Promise((resolve, reject) => {
       const octokit = new Octokit({
         auth: process.env.STOREFRONT_CI_GITHUB_TOKEN
       })
 
       return this.generate(octokit, payload)
-        .then(() => this.getFileContent(octokit, payload, 'template/public/admin/config.json', 10000))
-        .then(({ data }) => this.createCMSConfig(octokit, payload, data))
+        .then(() => this.createCMSConfig(octokit, payload))
         .then(() => this.getFileContent(octokit, payload, 'content/settings.json', 3000))
         .then(({ data }) => this.updateSettings(octokit, payload, data))
         .then(({ data }) => resolve(data))
@@ -35,7 +34,7 @@ class GitHub {
     })
   }
 
-  generate (octokit, payload) {
+  generate(octokit, payload) {
     return octokit.repos.createUsingTemplate({
       template_owner: this.templateOwner,
       template_repo: this.templateRepo,
@@ -46,7 +45,7 @@ class GitHub {
     })
   }
 
-  createCMSConfig (octokit, payload, content) {
+  createCMSConfig(octokit, payload) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         const config = {
@@ -64,13 +63,12 @@ class GitHub {
           message: 'chore(cms): setup custom backend config [skip ci]',
           path: 'template/public/admin/config.json',
           content: Buffer.from(JSON.stringify(config, null, 2)).toString('base64'),
-          sha: content.sha
         }).then(res => resolve(res)).catch(err => reject(err))
       }, 30000)
     })
   }
 
-  getFileContent (octokit, payload, path, timeout) {
+  getFileContent(octokit, payload, path, timeout) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         octokit.repos.getContents({

@@ -22,7 +22,7 @@ class Netlify {
 
   createSite (payload, retry = false) {
     return new Promise((resolve, reject) => {
-      const name = retry ? `${payload.name}-${Math.random() * (9999 - 1000) + 1000}` : payload.name
+      const name = retry ? `${payload.name}-${Math.floor(Math.random() * (9999 - 1000) + 1000)}` : payload.name
       const data = { name }
       axios.post('/sites', data)
         .then(result => resolve(result))

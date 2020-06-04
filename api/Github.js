@@ -23,10 +23,7 @@ class GitHub {
           if (error.status) {
             const err = {
               step: 'github',
-              status: error.status,
-              error: error.statusText,
-              details: error.errors,
-              documentation_url: error.documentation_url
+              error
             }
             logger.error(`${JSON.stringify(err)}`)
             return reject(err)
@@ -54,7 +51,7 @@ class GitHub {
       })
         .then(({ status }) => {
           if (status === 200) {
-            return resolve(`${name}-${Math.random() * (9999 - 1000) + 1000}`)
+            return resolve(`${name}-${Math.floor(Math.random() * (9999 - 1000) + 1000)}`)
           }
           return resolve(name)
         })

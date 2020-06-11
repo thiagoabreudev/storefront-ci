@@ -1,5 +1,5 @@
 const { Octokit } = require('@octokit/rest')
-const logger = require('../config/winston')
+const logger = require('console-files')
 const DEFAULT_SETTINGS = require('../config/defaultSettings')
 
 class GitHub {
@@ -15,20 +15,12 @@ class GitHub {
       })
 
       return this.generate(octokit, payload)
-        .then(() => this.createCMSConfig(octokit, payload))
-        .then(() => this.getFileContent(octokit, payload, 'content/settings.json', 3000))
-        .then(({ data }) => this.updateSettings(octokit, payload, data))
-        .then(({ data }) => resolve(data))
+        .then(({ data }) => {
+          this.handleCommits(octokit, payload)
+          resolve(data)
+        })
         .catch(error => {
-          if (error.status) {
-            const err = {
-              step: 'github',
-              error
-            }
-            logger.error(`${JSON.stringify(err)}`)
-            return reject(err)
-          }
-          logger.error(`${JSON.stringify(error)}`)
+          logger.error(error)
           return reject(error)
         })
     })
@@ -78,24 +70,24 @@ class GitHub {
 
   createCMSConfig(octokit, payload) {
     return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const config = {
-          backend: {
-            name: 'git-gateway',
-            branch: 'master',
-            identity_url: `https://gotrue.ecomplus.biz/${payload.gotrue.store_id}/.netlify/identity`,
-            gateway_url: `https://gitgateway.ecomplus.biz/${payload.gotrue.store_id}/.netlify/git`
-          }
+      const config = {
+        backend: {
+          name: 'git-gateway',
+          branch: 'master',
+          identity_url: `https://gotrue.ecomplus.biz/${payload.gotrue.store_id}/.netlify/identity`,
+          gateway_url: `https://gitgateway.ecomplus.biz/${payload.gotrue.store_id}/.netlify/git`
         }
+      }
 
-        octokit.repos.createOrUpdateFile({
-          owner: process.env.STOREFRONT_CI_GITHUB_DEFAULT_OWNER,
-          repo: payload.name,
-          message: 'chore(cms): setup custom backend config [skip ci]',
-          path: 'template/public/admin/config.json',
-          content: Buffer.from(JSON.stringify(config, null, 2)).toString('base64'),
-        }).then(res => resolve(res)).catch(err => reject(err))
-      }, 30000)
+      octokit.repos.createOrUpdateFile({
+        owner: process.env.STOREFRONT_CI_GITHUB_DEFAULT_OWNER,
+        repo: payload.name,
+        message: 'chore(cms): setup custom backend config [skip ci]',
+        path: 'template/public/admin/config.json',
+        content: Buffer.from(JSON.stringify(config, null, 2)).toString('base64'),
+      })
+        .then(res => resolve(res))
+        .catch(err => reject(err))
     })
   }
 
@@ -121,6 +113,20 @@ class GitHub {
       content: Buffer.from(JSON.stringify(defaultSettings, null, 2)).toString('base64'),
       sha: content.sha
     })
+  }
+
+  handleCommits(octokit, payload, retry = 0) {
+    setTimeout(() => {
+      this.createCMSConfig(octokit, payload)
+        .then(() => this.getFileContent(octokit, payload, 'content/settings.json', 3000))
+        .then(({ data }) => this.updateSettings(octokit, payload, data))
+        .catch(error => {
+          logger.error(error)
+          if (retry < 3) {
+            this.handleCommits(octokit, payload, retry++)
+          }
+        })
+    }, 120000)
   }
 }
 
